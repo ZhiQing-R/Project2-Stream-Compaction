@@ -43,6 +43,7 @@ namespace StreamCompaction {
             cudaMalloc((void**)&dev_obufferB, n * sizeof(int));
             cudaMemset(dev_obufferB, 0, n * sizeof(int));
 
+            nvtxRangePushA("Naive");
             timer().startGpuTimer();
 
             dim3 fullBlocksPerGrid((n + blockSize - 1) / blockSize);
@@ -56,6 +57,7 @@ namespace StreamCompaction {
             }
 
             timer().endGpuTimer();
+            nvtxRangePop();
 
             // result is in A
             // do right shift

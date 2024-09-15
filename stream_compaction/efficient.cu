@@ -51,6 +51,7 @@ namespace StreamCompaction {
             cudaMemset(dev_obuffer + n, 0, (paddedNum - n) * sizeof(int));
             cudaMemcpy(dev_obuffer, idata, sizeof(int) * n, cudaMemcpyHostToDevice);
 
+            nvtxRangePushA("Efficient");
             timer().startGpuTimer();
 
             int taskNum = paddedNum;
@@ -70,6 +71,7 @@ namespace StreamCompaction {
             }
 
             timer().endGpuTimer();
+            nvtxRangePop();
 
             cudaMemcpy(odata, dev_obuffer, sizeof(int) * n, cudaMemcpyDeviceToHost);
             cudaFree(dev_obuffer);

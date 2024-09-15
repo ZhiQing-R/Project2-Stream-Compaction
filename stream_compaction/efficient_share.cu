@@ -207,7 +207,7 @@ namespace StreamCompaction {
 
             timer().continueGpuTimer();
             
-            kernScan << < blockNum, blockSize, itemPerBlock * sizeof(int) >> > (itemPerBlock, dev_odata, dev_sum);
+            kernScan << < blockNum, blockSize, (itemPerBlock + 10) * sizeof(int) >> > (itemPerBlock, dev_odata, dev_sum);
 
             if (blockNum <= itemPerBlock)
             {
@@ -240,11 +240,13 @@ namespace StreamCompaction {
             cudaMemset(dev_obuffer + n, 0, (paddedNum - n) * sizeof(int));
             cudaMemcpy(dev_obuffer, idata, sizeof(int) * n, cudaMemcpyHostToDevice);
 
+            nvtxRangePushA("Efficient Share");
             timer().startGpuTimer();
 
             scan_dev(paddedNum, dev_obuffer);
 
             timer().endGpuTimer();
+            nvtxRangePop();
 
             cudaMemcpy(odata, dev_obuffer, sizeof(int) * n, cudaMemcpyDeviceToHost);
             cudaFree(dev_obuffer);
