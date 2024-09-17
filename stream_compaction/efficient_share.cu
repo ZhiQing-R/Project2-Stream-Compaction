@@ -38,7 +38,8 @@ namespace StreamCompaction {
             //s_odata[2 * tid + 1] = odata[blockOffset + 2 * tid + 1];
 
             // up sweep
-            for (int d = n >> 1; d > 0; d >>= 1)
+            #pragma unroll
+            for (int d = itemPerBlock >> 1; d > 0; d >>= 1)
             {
                 __syncthreads();
                 if (tid < d)
@@ -61,7 +62,8 @@ namespace StreamCompaction {
             }
 
             // down sweep
-            for (int d = 1; d < n; d <<= 1)
+            #pragma unroll
+            for (int d = 1; d < itemPerBlock; d <<= 1)
             {
                 __syncthreads();
                 if (tid < d)
@@ -168,29 +170,22 @@ namespace StreamCompaction {
             int blockOffset = bid * n + tid;
 
             int stride = n >> 2;
-            int base = incr[bid];
-
-            odata[blockOffset] += base;
-            odata[blockOffset + 1 * stride] += base;
-            odata[blockOffset + 2 * stride] += base;
-            odata[blockOffset + 3 * stride] += base;
-            //odata[blockOffset + 4 * stride] += base;
-            //odata[blockOffset + 5 * stride] += base;
-            //odata[blockOffset + 6 * stride] += base;
-            //odata[blockOffset + 7 * stride] += base;
+            int base1 = incr[bid];
 
             bid += gridDim.x;
-            blockOffset = bid * n + tid;
-            base = incr[bid];
+            int base2 = incr[bid];
 
-            odata[blockOffset] += base;
-            odata[blockOffset + 1 * stride] += base;
-            odata[blockOffset + 2 * stride] += base;
-            odata[blockOffset + 3 * stride] += base;
-            //odata[blockOffset + 4 * stride] +=base;
-            //odata[blockOffset + 5 * stride] +=base;
-            //odata[blockOffset + 6 * stride] +=base;
-            //odata[blockOffset + 7 * stride] +=base;
+            odata[blockOffset] += base1;
+            odata[blockOffset + 1 * stride] += base1;
+            odata[blockOffset + 2 * stride] += base1;
+            odata[blockOffset + 3 * stride] += base1;
+
+            blockOffset = bid * n + tid;
+            
+            odata[blockOffset] += base2;
+            odata[blockOffset + 1 * stride] += base2;
+            odata[blockOffset + 2 * stride] += base2;
+            odata[blockOffset + 3 * stride] += base2;
         }
 
         // assume input is already padded
