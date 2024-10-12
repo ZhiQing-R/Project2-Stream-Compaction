@@ -73,6 +73,7 @@ After some simple test, the I set the block size of each implementation to be:
 - Naive: 256
 - Work Efficient: 512
 - Work Efficient with Shared Memory: 512
+![](img/blocksize.png)
 
 ### 2. Compare all of these GPU Scan implementations
 ![](img/runtime_small.png)
